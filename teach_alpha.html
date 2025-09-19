@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>*:･ﾟLearning Alphabet ✧*:･ﾟ - SignLink</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <style>
+    .lesson {
+      text-align: center;
+      margin: 30px;
+    }
+    img {
+      max-width: 200px;
+      margin: 15px;
+      border-radius: 5px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .letter-card {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Learning Alphabet</h1>
+  <div class="lesson" id="alphabetLesson">
+    <p>Learn the Auslan alphabet! Each letter has a hand sign.</p>
+  </div>
+
+  <p style="font-size: 14px; color: gray;">
+    Image credits: Vic.edu.au. (2024). Available at: https://melroseps.vic.edu.au/wp-content/uploads/2024/03/1-scaled.jpg.
+  </p>
+
+  <footer>
+    &copy; 2025 Developed by Urena Verma
+  </footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script>
+    // --- Global variables ---
+    const alphabetContainer = document.getElementById('alphabetLesson'); // container to display letters
+
+    /**
+     * Represents a single alphabet letter with its image
+     */
+    class AlphabetLetter {
+      /**
+       * @param {string} letter - the alphabet letter
+       * @param {string} imgSrc - path to the sign image
+       */
+      constructor(letter, imgSrc) {
+        if (!letter || typeof letter !== 'string') throw new Error('Invalid letter');
+        if (!imgSrc || typeof imgSrc !== 'string') throw new Error('Invalid image source');
+
+        this.letter = letter.toUpperCase(); // store uppercase consistently
+        this.imgSrc = imgSrc;
+      }
+
+      /**
+       * Create DOM element for this letter
+       * @returns {HTMLElement} div element containing image and caption
+       */
+      render() {
+        const card = document.createElement('div');
+        card.className = 'letter-card';
+
+        const img = document.createElement('img');
+        img.src = this.imgSrc;
+        img.alt = `Sign for ${this.letter}`;
+
+        const caption = document.createElement('p');
+        caption.textContent = `${this.letter} → This is how you sign the letter ${this.letter}.`;
+
+        card.appendChild(img);
+        card.appendChild(caption);
+
+        return card;
+      }
+    }
+
+    /**
+     * Generate the alphabet as an array of AlphabetLetter objects
+     * @returns {AlphabetLetter[]}
+     */
+    function generateAlphabet() {
+      const letters = [];
+      for (let i = 0; i < 26; i++) {
+        const char = String.fromCharCode(65 + i); // ASCII A-Z
+        const imgPath = `assets/images/sign_${char.toLowerCase()}.png`;
+        letters.push(new AlphabetLetter(char, imgPath));
+      }
+      return letters;
+    }
+
+    /**
+     * Render all alphabet letters to the page
+     */
+    function renderAlphabetLesson() {
+      const alphabetArray = generateAlphabet();
+      alphabetArray.forEach(letterObj => {
+        alphabetContainer.appendChild(letterObj.render());
+      });
+    }
+
+    // --- Execute on page load ---
+    renderAlphabetLesson();
+  </script>
+</body>
+</html>

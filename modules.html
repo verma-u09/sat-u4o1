@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>*:･ﾟModules ✧*:･ﾟ - SignLink</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <style>
+    /* container for all modules sections */
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      text-align: center;
+    }
+
+    /* sections within the page */
+    .section {
+      margin: 30px 0;
+    }
+
+    /* styling for clickable module icons */
+    .icon {
+      display: inline-block;
+      width: 180px;
+      height: 180px;
+      margin: 20px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-decoration: none;
+      color: #333;
+      transition: all 0.3s ease;
+    }
+
+    /* hover effect for interactive feedback */
+    .icon:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    /* icon images */
+    .icon img {
+      max-width: 80px;
+      max-height: 80px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Modules ❀</h1>
+
+  <div class="container" id="modulesContainer">
+    <!-- Sections will be rendered dynamically -->
+  </div>
+
+  <p style="text-align:center;"><a href="dashboard.html">← Back to Dashboard</a></p>
+
+  <footer>
+    &copy; 2025 Developed by Urena Verma
+  </footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script>
+    /**
+     * Class representing a single module icon
+     */
+    class Module {
+      constructor(title, link, type) {
+        // Validate input types
+        if (typeof title !== 'string') throw new Error('title must be a string');
+        if (typeof link !== 'string') throw new Error('link must be a string');
+        if (!['teach','game'].includes(type)) throw new Error('type must be "teach" or "game"');
+
+        this.title = title; // Name of the module
+        this.link = link;   // href link to module page
+        this.type = type;   // category of module (teach/game)
+      }
+
+      /**
+       * Create DOM element for the module icon
+       * @returns {HTMLElement} DOM element representing the module
+       */
+      render() {
+        const anchor = document.createElement('a');
+        anchor.href = this.link;
+        anchor.className = 'icon';
+
+        // optional image for teaching modules (can be added later)
+        const img = document.createElement('img');
+        img.alt = `${this.title} icon`;
+        anchor.appendChild(img);
+
+        const heading = document.createElement('h3');
+        heading.textContent = this.title;
+        anchor.appendChild(heading);
+
+        return anchor;
+      }
+    }
+
+    /**
+     * Class for managing a group of modules
+     */
+    class ModuleSection {
+      constructor(sectionTitle, modules) {
+        if (typeof sectionTitle !== 'string') throw new Error('sectionTitle must be string');
+        if (!Array.isArray(modules)) throw new Error('modules must be an array');
+
+        this.sectionTitle = sectionTitle; // Name of section (e.g., Teaching Modules)
+        this.modules = modules;           // Array of Module objects
+      }
+
+      /**
+       * Render the section and return DOM element
+       */
+      render() {
+        const sectionDiv = document.createElement('div');
+        sectionDiv.className = 'section';
+
+        const title = document.createElement('h2');
+        title.textContent = this.sectionTitle;
+        sectionDiv.appendChild(title);
+
+        // render all modules within this section
+        this.modules.forEach(moduleObj => {
+          if (moduleObj instanceof Module) {
+            sectionDiv.appendChild(moduleObj.render());
+          }
+        });
+
+        return sectionDiv;
+      }
+    }
+
+    // --- Create module instances ---
+    const teachingModules = [
+      new Module('Alphabet', 'teach_alpha.html', 'teach'),
+      new Module('Numbers', 'teach_number.html', 'teach'),
+      new Module('Colours', 'teach_colours.html', 'teach')
+    ];
+
+    const gameModules = [
+      new Module('Memory', 'game_memo.html', 'game'),
+      new Module('Match the Sign', 'game_match.html', 'game'),
+      new Module('Quiz', 'game_quiz.html', 'game')
+    ];
+
+    // --- Create sections ---
+    const sections = [
+      new ModuleSection('Teaching Modules', teachingModules),
+      new ModuleSection('Test Your Knowledge', gameModules)
+    ];
+
+    // --- Render sections in GUI ---
+    const container = document.getElementById('modulesContainer');
+    sections.forEach(sec => {
+      container.appendChild(sec.render());
+    });
+
+  </script>
+</body>
+</html>

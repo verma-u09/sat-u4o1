@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>*:･ﾟLogin ✧*:･ﾟ - SignLink</title>
+<style>
+body { margin-top:50px; font-family:Cambria,"Hoefler Text","Liberation Serif",Times,"Times New Roman",serif; color:#333;background-color:#97a0c7;}
+form { margin:20px auto; width:300px; border:1px solid #F5EDED; padding:20px; border-radius:10px; box-shadow:0 0 5px rgba(0,0,0,0.1); background-color:#c7cbe1; text-align:center; }
+label { display:block; margin-bottom:5px; font-weight:bold;}
+input[type="text"], input[type="password"] { width:80%; margin:0 auto; padding:5px; border:1px solid #ccc; border-radius:5px; }
+button { background-color:#7C89C4; color:#333; border:none; padding:10px 15px; border-radius:5px; cursor:pointer; font-family:Cambria,"Hoefler Text","Liberation Serif",Times,"Times New Roman",serif; margin-top:15px; }
+h1 { text-align:center; font-size:1.5em; margin-bottom:10px; }
+p { text-align:center; color:#F3EDF8; }
+a { color:#111010; text-decoration:underline; }
+footer { text-align:center; font-size:0.8em; color:#141315; position:fixed; bottom:0; left:0; width:100%; }
+.show-password-container {
+    margin-top: 5px;
+    text-align: left;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+</style>
+</head>
+<body>
+
+<h1 style="color:black; font-size: 35px;">Welcome! ❀</h1>
+
+<div class="login-container">
+<p style="color:white; font-size: 23px;">Login :)</p>
+<form id="loginForm">
+  <div class="form-group">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+  </div>
+  <div class="form-group">
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+  </div>
+  <div class="show-password-container">
+      <input type="checkbox" id="showPassword"> Show Password
+  </div>
+  <div class="form-group">
+    <button type="submit">Login</button>
+  </div>
+  <p id="errorMsg" style="color:red; font-size:16px;"></p>
+</form>
+<p>Don't have an account? <a href="register.html">Register here.</a></p>
+
+<footer>
+    &copy; 2025 Developed by Urena Verma
+</footer>
+
+<script>
+const encryptRule = {
+  "a":"J","b":"R","c":"0","d":"L","e":"3","f":"Q","g":"O","h":"8","i":"V","j":"W",
+  "k":"7","l":"N","m":"9","n":"S","o":"@","p":"^","q":"*","r":"#","s":"5","t":"=",
+  "u":"{","v":"X","w":"L","x":"M","y":"A","z":"&","A":"K","B":"C","C":"Z","D":"T",
+  "E":"F","F":"U","G":"E","H":"2","I":"P","J":"Y","K":"I","L":"D","M":"4","N":"H",
+  "O":"6","P":"G","Q":"B","R":"1","S":"!","T":"}","U":"(","V":")","W":":","X":"<",
+  "Y":">","Z":"?","0":"]","1":"[","2":"~","3":"+","4":"-","5":"|","6":",","7":".",
+  "8":"/","9":"\""
+};
+
+function encryptPassword(password) {
+  return password.split('').map(c => encryptRule[c] || c).join('');
+}
+
+// show password toggle
+document.getElementById('showPassword').addEventListener('change', function(){
+    const p = document.getElementById('password');
+    p.type = this.checked ? 'text' : 'password';
+});
+
+// login
+document.getElementById('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    const username = document.getElementById('username').value.trim();
+    const password = encryptPassword(document.getElementById('password').value);
+    let users = JSON.parse(localStorage.getItem('users') || '{}');
+
+    if (users.hasOwnProperty(username)) {
+        if (users[username] === password) {
+            localStorage.setItem('loggedInUser', username);
+            localStorage.setItem('loggedIn', 'true'); // add this line
+            document.getElementById('errorMsg').style.color = 'green';
+            document.getElementById('errorMsg').textContent = 'You have successfully logged in! :)';
+            window.location.href = "dashboard.html"; // redirect after login
+        } else {
+            document.getElementById('errorMsg').style.color = 'red';
+            document.getElementById('errorMsg').textContent = 'Incorrect password :(';
+        }
+    } else {
+        document.getElementById('errorMsg').style.color = 'red';
+        document.getElementById('errorMsg').textContent = 'User does not exist :/';
+    }
+});
+</script>
+
+</body>
+</html>

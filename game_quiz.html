@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>*:･ﾟQuiz ✧*:･ﾟ - SignLink</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <style>
+    .quiz {
+      max-width: 600px;
+      margin: 30px auto;
+      text-align: center;
+    }
+    .quiz img {
+      max-width: 150px;
+      margin: 15px;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 15px;
+      border: none;
+      background: #7C89C4;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Quiz</h1>
+  <div class="quiz">
+    <p id="questionText">Which sign is this?</p>
+    <img id="quizImage" src="" alt="Sign">
+    <div id="options"></div>
+    <p id="feedback"></p>
+  </div>
+  <p style="font-size: 14px; color: gray;">
+      Image credits: 1. Vic.edu.au. (2024). Available at: https://melroseps.vic.edu.au/wp-content/uploads/2024/03/1-scaled.jpg. 
+      2. Deafchildrenaustralia.org.au. (2023). Available at: https://www.deafchildrenaustralia.org.au/wp-content/uploads/2023/10/DCA_PPH_Numbers_A3poster_2023_PRINT-1-pdf.jpg [Accessed 19 Sep. 2025]. 
+      3. Signplanet.net. (2025). Available at: https://signplanet.net/resource/101/thumbnail [Accessed 19 Sep. 2025].
+  </p>
+  <footer>&copy; 2025 Developed by Urena Verma</footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script>
+    /**
+     * Class representing a quiz item (letter, number, or colour)
+     */
+    class QuizItem {
+      constructor(name, imageSrc) {
+        if (typeof name !== 'string') throw new Error('QuizItem name must be a string');
+        if (typeof imageSrc !== 'string') throw new Error('QuizItem imageSrc must be a string');
+        this.name = name;           // Identifier for the quiz
+        this.imageSrc = imageSrc;   // Image path
+      }
+    }
+
+    /**
+     * Class representing the Quiz game
+     */
+    class QuizGame {
+      constructor(itemsArray, quizImageEl, optionsContainerEl, feedbackEl) {
+        // Validate inputs
+        if (!Array.isArray(itemsArray)) throw new Error('itemsArray must be an array');
+        if (!(quizImageEl instanceof HTMLElement)) throw new Error('quizImageEl must be a DOM element');
+        if (!(optionsContainerEl instanceof HTMLElement)) throw new Error('optionsContainerEl must be a DOM element');
+        if (!(feedbackEl instanceof HTMLElement)) throw new Error('feedbackEl must be a DOM element');
+
+        this.itemsArray = itemsArray;              // Array of QuizItem objects
+        this.quizImageEl = quizImageEl;            // DOM element to display image
+        this.optionsContainerEl = optionsContainerEl; // DOM container for option buttons
+        this.feedbackEl = feedbackEl;              // DOM element for feedback
+        this.currentAnswer = null;                 // Stores the correct answer for current question
+
+        this.loadQuestion();                       // Load first question
+      }
+
+      /**
+       * Load a new quiz question
+       */
+      loadQuestion() {
+        // Select random quiz item
+        const randomIndex = Math.floor(Math.random() * this.itemsArray.length);
+        const selectedItem = this.itemsArray[randomIndex];
+        this.currentAnswer = selectedItem.name;
+
+        // Update image in GUI
+        this.quizImageEl.src = selectedItem.imageSrc;
+        this.quizImageEl.alt = `Sign ${selectedItem.name}`;
+
+        // Generate options (correct + 2 random incorrect)
+        let options = [selectedItem.name];
+
+        while (options.length < 3) {
+          const randomOption = this.itemsArray[Math.floor(Math.random() * this.itemsArray.length)].name;
+          if (!options.includes(randomOption)) options.push(randomOption);
+        }
+
+        // Shuffle options using simple random sort
+        options.sort(() => 0.5 - Math.random());
+
+        // Render option buttons
+        this.optionsContainerEl.innerHTML = '';
+        options.forEach(opt => {
+          const btn = document.createElement('button');
+          btn.textContent = opt;
+          btn.addEventListener('click', () => this.checkAnswer(opt));
+          this.optionsContainerEl.appendChild(btn);
+        });
+
+        // Clear feedback text
+        this.feedbackEl.textContent = '';
+      }
+
+      /**
+       * Check the selected answer
+       * @param {string} answer 
+       */
+      checkAnswer(answer) {
+        if (typeof answer !== 'string') return; // validate type
+        if (answer === this.currentAnswer) {
+          this.feedbackEl.textContent = `Correct! That is ${answer}.`;
+          setTimeout(() => this.loadQuestion(), 1200); // load next question after delay
+        } else {
+          this.feedbackEl.textContent = 'Not quite. Try again!';
+        }
+      }
+    }
+
+    // --- Prepare quiz items ---
+    const letters = Array.from({ length: 26 }, (_, i) => new QuizItem(String.fromCharCode(65 + i), `assets/images/sign_${String.fromCharCode(65 + i).toLowerCase()}.png`));
+    const numbers = Array.from({ length: 10 }, (_, i) => new QuizItem((i + 1).toString(), `assets/images/sign_${i + 1}.png`));
+    const colours = [
+      new QuizItem("Red", "assets/images/sign_red.png"),
+      new QuizItem("Orange", "assets/images/sign_orange.png"),
+      new QuizItem("Yellow", "assets/images/sign_yellow.png"),
+      new QuizItem("Green", "assets/images/sign_green.png"),
+      new QuizItem("Blue", "assets/images/sign_blue.png"),
+      new QuizItem("Purple", "assets/images/sign_purple.png"),
+      new QuizItem("Black", "assets/images/sign_black.png"),
+      new QuizItem("White", "assets/images/sign_white.png")
+    ];
+
+    const allQuizItems = [...letters, ...numbers, ...colours];
+
+    // DOM references
+    const quizImageEl = document.getElementById('quizImage');
+    const optionsContainerEl = document.getElementById('options');
+    const feedbackEl = document.getElementById('feedback');
+
+    // Initialize QuizGame
+    const quizGame = new QuizGame(allQuizItems, quizImageEl, optionsContainerEl, feedbackEl);
+  </script>
+</body>
+</html>

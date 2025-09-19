@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>*:･ﾟMatch the Sign ✧*:･ﾟ - SignLink</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <style>
+    .question {
+      text-align: center;
+      margin: 30px;
+    }
+    .options {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .options img {
+      max-width: 120px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 5px;
+      transition: border-color 0.3s;
+    }
+    .options img:hover {
+      border-color: #7C89C4;
+    }
+  </style>
+</head>
+<body>
+  <h1>Match the Sign</h1>
+  <div class="question">
+    <p id="questionText"></p>
+    <div class="options" id="options"></div>
+    <p id="result"></p>
+  </div>
+  <p style="font-size: 14px; color: gray;">
+      Image credits: 1. Vic.edu.au. (2024). Available at: https://melroseps.vic.edu.au/wp-content/uploads/2024/03/1-scaled.jpg. 
+      2. Deafchildrenaustralia.org.au. (2023). Available at: https://www.deafchildrenaustralia.org.au/wp-content/uploads/2023/10/DCA_PPH_Numbers_A3poster_2023_PRINT-1-pdf.jpg [Accessed 19 Sep. 2025]. 
+      3. Signplanet.net. (2025). Available at: https://signplanet.net/resource/101/thumbnail [Accessed 19 Sep. 2025].
+  </p>
+  <footer>&copy; 2025 Developed by Urena Verma</footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script>
+    /**
+     * Class representing the Match the Sign game
+     */
+    class MatchTheSignGame {
+      constructor(lettersArray, questionTextElement, optionsContainerElement, resultElement) {
+        // Validate input types
+        if (!Array.isArray(lettersArray)) throw new Error('lettersArray must be an array');
+        if (!(questionTextElement instanceof HTMLElement)) throw new Error('questionTextElement must be a DOM element');
+        if (!(optionsContainerElement instanceof HTMLElement)) throw new Error('optionsContainerElement must be a DOM element');
+        if (!(resultElement instanceof HTMLElement)) throw new Error('resultElement must be a DOM element');
+
+        this.letters = lettersArray;                          // Array of letters for questions
+        this.questionText = questionTextElement;             // DOM element displaying question
+        this.optionsContainer = optionsContainerElement;     // DOM element for choices
+        this.result = resultElement;                          // DOM element for result message
+        this.correctAnswer = "";                               // current correct answer
+      }
+
+      /**
+       * Generate a new question
+       */
+      generateQuestion() {
+        this.clearResultAndOptions();
+
+        // Randomly pick correct answer from letters
+        this.correctAnswer = this.letters[Math.floor(Math.random() * this.letters.length)];
+        this.questionText.textContent = `Which sign is for ${this.correctAnswer}?`;
+
+        // Pick 3 random wrong options
+        let wrongOptions = this.letters.filter(letter => letter !== this.correctAnswer);
+        wrongOptions = this.shuffleArray(wrongOptions).slice(0, 3);
+
+        // Combine correct and wrong options, then shuffle
+        const allChoices = this.shuffleArray([...wrongOptions, this.correctAnswer]);
+
+        // Render choice images
+        allChoices.forEach(choice => this.renderChoice(choice));
+      }
+
+      /**
+       * Render a single choice as an image
+       * @param {string} choice - Letter choice
+       */
+      renderChoice(choice) {
+        const img = document.createElement('img');
+        img.src = `assets/images/sign_${choice.toLowerCase()}.png`;
+        img.alt = choice;
+        img.addEventListener('click', () => this.checkAnswer(choice));
+        this.optionsContainer.appendChild(img);
+      }
+
+      /**
+       * Check if the chosen answer is correct
+       * @param {string} choice - Letter selected by user
+       */
+      checkAnswer(choice) {
+        if (choice === this.correctAnswer) {
+          this.result.textContent = `✅ Correct! That’s ${choice}.`;
+          // Wait 1.5s before generating next question
+          setTimeout(() => this.generateQuestion(), 1500);
+        } else {
+          this.result.textContent = "❌ Wrong. Try again!";
+        }
+      }
+
+      /**
+       * Clear current result and options from DOM
+       */
+      clearResultAndOptions() {
+        this.result.textContent = "";
+        this.optionsContainer.innerHTML = "";
+      }
+
+      /**
+       * Utility function: shuffle array using Fisher-Yates algorithm
+       * @param {Array} array
+       * @returns {Array} shuffled array
+       */
+      shuffleArray(array) {
+        const arrCopy = [...array]; // copy array to avoid mutating original
+        for (let i = arrCopy.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arrCopy[i], arrCopy[j]] = [arrCopy[j], arrCopy[i]]; // swap elements
+        }
+        return arrCopy;
+      }
+    }
+
+    // DOM elements
+    const questionTextElement = document.getElementById("questionText");
+    const optionsContainerElement = document.getElementById("options");
+    const resultElement = document.getElementById("result");
+
+    // Array of letters to be used in the game
+    const lettersArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+    // Initialize the game instance
+    const matchGame = new MatchTheSignGame(lettersArray, questionTextElement, optionsContainerElement, resultElement);
+
+    // Start the game
+    matchGame.generateQuestion();
+  </script>
+</body>
+</html>

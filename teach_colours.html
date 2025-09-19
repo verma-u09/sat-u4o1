@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>*:･ﾟLearning Colours ✧*:･ﾟ - SignLink</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <style>
+    .lesson-container {
+      max-width: 900px;
+      margin: 30px auto;
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .card img {
+      max-width: 100px;
+      margin-bottom: 10px;
+    }
+    .dark-mode .card {
+      background: #2a2a2a;
+    }
+    .color-icon {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      margin-left: 8px;
+      vertical-align: middle;
+      border: 1px solid #ccc;
+    }
+    .red { background: red; }
+    .orange { background: orange; }
+    .blue { background: blue; }
+    .purple { background: purple; }
+    .green { background: green; }
+    .yellow { background: yellow; }
+    .black { background: black; }
+    .white { background: white; border: 1px solid #aaa; }
+  </style>
+</head>
+<body>
+  <h1>Learning Colours</h1>
+  <div class="lesson-container" id="colourLesson">
+    <p>Learn Auslan signs for common colours!</p>
+    <div class="grid" id="colourGrid"></div>
+  </div>
+
+  <p style="font-size: 14px; color: gray;">
+      Image credits: Signplanet.net. (2025). Available at: https://signplanet.net/resource/101/thumbnail [Accessed 19 Sep. 2025].
+  </p>
+
+  <footer>
+    <p>&copy; 2025 Developed by Urena Verma</p>
+  </footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script>
+    // --- Global variables ---
+    const colourGrid = document.getElementById('colourGrid');
+
+    /**
+     * Represents a colour with its Auslan sign
+     */
+    class ColourCard {
+      /**
+       * @param {string} name - name of the colour
+       * @param {string} imgSrc - path to the sign image
+       * @param {string} cssClass - class for small colour indicator
+       */
+      constructor(name, imgSrc, cssClass) {
+        if (!name || typeof name !== 'string') throw new Error('Invalid colour name');
+        if (!imgSrc || typeof imgSrc !== 'string') throw new Error('Invalid image source');
+        if (!cssClass || typeof cssClass !== 'string') throw new Error('Invalid CSS class');
+
+        this.name = name;
+        this.imgSrc = imgSrc;
+        this.cssClass = cssClass;
+      }
+
+      /**
+       * Render DOM element for this colour
+       * @returns {HTMLElement} card element
+       */
+      render() {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const img = document.createElement('img');
+        img.src = this.imgSrc;
+        img.alt = `Sign for ${this.name}`;
+
+        const caption = document.createElement('h3');
+        caption.innerHTML = `${this.name} <span class="color-icon ${this.cssClass}"></span>`;
+
+        card.appendChild(img);
+        card.appendChild(caption);
+
+        return card;
+      }
+    }
+
+    /**
+     * Generate colour cards
+     * @returns {ColourCard[]}
+     */
+    function generateColours() {
+      const colours = [
+        { name: 'Red', class: 'red' },
+        { name: 'Orange', class: 'orange' },
+        { name: 'Blue', class: 'blue' },
+        { name: 'Purple', class: 'purple' },
+        { name: 'Green', class: 'green' },
+        { name: 'Yellow', class: 'yellow' },
+        { name: 'Black', class: 'black' },
+        { name: 'White', class: 'white' }
+      ];
+
+      return colours.map(c => new ColourCard(c.name, `assets/images/sign_${c.name.toLowerCase()}.png`, c.class));
+    }
+
+    /**
+     * Render all colours to the grid
+     */
+    function renderColourLesson() {
+      const colourArray = generateColours();
+      colourArray.forEach(colour => {
+        colourGrid.appendChild(colour.render());
+      });
+    }
+
+    // --- Execute on page load ---
+    renderColourLesson();
+  </script>
+</body>
+</html>

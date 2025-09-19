@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>*:･ﾟDashboard ✧*:･ﾟ - SignLink</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <style>
+    /* Main container for module icons */
+    .container {
+      max-width: 900px;
+      margin: 50px auto;
+      text-align: center;
+    }
+
+    /* Generic icon card styling */
+    .icon {
+      display: inline-block;
+      width: 150px;
+      height: 150px;
+      margin: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      color: inherit;
+    }
+    .icon:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    }
+    .icon img {
+      max-width: 80px;
+      max-height: 80px;
+      margin-bottom: 10px;
+    }
+
+    /* Settings icon */
+    .settings {
+      position: fixed;
+      bottom: 15px;
+      left: 15px;
+      cursor: pointer;
+      font-size: 24px;
+      user-select: none;
+    }
+    .settings img {
+      width: 40px;
+      height: 40px;
+      vertical-align: middle;
+    }
+
+    /* Footer styling */
+    footer {
+      text-align: center;
+      font-size: 0.8em;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    /* Logout container styling */
+    .logout-container {
+      border:1px solid red;
+      float: right;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome, <span id="username"></span> ❀</h1>
+
+  <!-- Logout button -->
+  <div class="logout-container">
+    <a href="#" id="logout">Logout</a>
+  </div>
+
+  <!-- Dashboard modules -->
+  <div class="container" id="dashboardContainer">
+    <!-- Module icons will be rendered dynamically -->
+  </div>
+
+  <!-- Dark mode toggle -->
+  <div class="settings" id="darkModeToggle" title="Toggle Dark Mode">
+    🌞
+  </div>
+
+  <footer>
+    &copy; 2025 Developed by Urena Verma
+  </footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script>
+    /**
+     * Class representing a dashboard module
+     */
+    class DashboardModule {
+      /**
+       * @param {string} name - Name of the module
+       * @param {string} link - Link to navigate when clicked
+       */
+      constructor(name, link) {
+        // Validate types
+        if (typeof name !== 'string' || typeof link !== 'string') {
+          throw new Error('Invalid type for DashboardModule parameters');
+        }
+        this.name = name;
+        this.link = link;
+      }
+
+      /**
+       * Render module as a clickable card
+       * @returns {HTMLAnchorElement}
+       */
+      render() {
+        const anchor = document.createElement('a');
+        anchor.href = this.link;
+        anchor.className = 'icon';
+
+        const heading = document.createElement('h3');
+        heading.textContent = this.name;
+
+        anchor.appendChild(heading);
+        return anchor;
+      }
+    }
+
+    /**
+     * Function to check user authentication
+     * Redirects to register page if not logged in
+     */
+    function checkAuthentication() {
+      const loggedIn = localStorage.getItem('loggedIn');
+      if (loggedIn !== 'true') {
+        window.location.href = "register.html";
+      }
+    }
+
+    /**
+     * Function to get current logged-in username and display it
+     */
+    function displayUsername() {
+      const username = localStorage.getItem('loggedInUser');
+      const usernameSpan = document.getElementById('username');
+      if (username && typeof username === 'string') {
+        usernameSpan.textContent = username;
+      } else {
+        usernameSpan.textContent = 'Guest';
+      }
+    }
+
+    /**
+     * Function to handle logout
+     */
+    function setupLogout() {
+      const logoutBtn = document.getElementById('logout');
+      logoutBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        localStorage.removeItem('loggedIn');
+        localStorage.removeItem('loggedInUser');
+        window.location.href = "login.html";
+      });
+    }
+
+    /**
+     * Function to setup dark mode toggle
+     */
+    function setupDarkMode() {
+      const darkToggle = document.getElementById('darkModeToggle');
+      const body = document.body;
+
+      // Apply saved mode from localStorage
+      if (localStorage.getItem('darkMode') === 'true') {
+        body.classList.add('dark-mode');
+        darkToggle.textContent = '🌙';
+      } else {
+        darkToggle.textContent = '🌞';
+      }
+
+      darkToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+        darkToggle.textContent = isDark ? '🌙' : '🌞';
+      });
+    }
+
+    /**
+     * Function to render dashboard modules dynamically
+     */
+    function renderDashboardModules() {
+      const modules = [
+        new DashboardModule('Modules', 'modules.html'),
+        new DashboardModule('Dictionary', 'dictionary.html'),
+        new DashboardModule('Progress', 'progress.html')
+      ];
+
+      const container = document.getElementById('dashboardContainer');
+      // Clear existing children
+      container.innerHTML = '';
+
+      // Loop through modules and render each
+      modules.forEach(module => {
+        container.appendChild(module.render());
+      });
+    }
+
+    // Execute all setup functions
+    checkAuthentication();
+    displayUsername();
+    setupLogout();
+    setupDarkMode();
+    renderDashboardModules();
+
+  </script>
+</body>
+</html>

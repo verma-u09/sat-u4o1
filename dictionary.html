@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>*:･ﾟDictionary ✧*:･ﾟ - SignLink</title>
+<style>
+  body { font-family: 'Times New Roman', Times, serif; background:#97a0c7; color:#333; margin:0; padding:18px; }
+  h1 { text-align:center; }
+  #search { display:block; margin:8px auto; padding:8px; width:90%; max-width:520px; border-radius:6px; }
+  .results { max-width:900px; margin:18px auto; display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
+  .card { width:220px; background:#fff; padding:10px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.08); text-align:center; }
+  .card img { max-width:160px; height:110px; object-fit:contain; }
+  .cite { font-size:0.8em; color:#555; margin-top:6px; }
+  .back { text-align:center; margin-top:14px; }
+
+  /* Dark mode styles */
+  body.dark-mode { background-color: #1a1a1a !important; color: #eee !important; }
+  body.dark-mode #search { background-color: #333 !important; color: #eee !important; border-color: #666 !important; }
+  body.dark-mode .card { background-color: #2a2a2a !important; color: #eee !important; box-shadow: 0 6px 18px rgba(0,0,0,0.3) !important; }
+  body.dark-mode a { color: #f5f5f5 !important; }
+  body.dark-mode .cite { color: #ccc !important; }
+</style>
+</head>
+<body>
+<h1>Auslan Sign Dictionary</h1>
+<input id="search" placeholder="Search letters, numbers, colours, greetings..." />
+
+<div class="results" id="results"></div>
+<p class="back"><a href="dashboard.html">← Back to Dashboard</a></p>
+
+<script>
+/**
+ * Class representing a dictionary entry
+ */
+class DictionaryEntry {
+  /**
+   * @param {string} key - Key to identify entry (lowercase)
+   * @param {string} label - Display label for entry
+   * @param {string} img - URL to entry image
+   */
+  constructor(key, label, img) {
+    // Validate input types
+    if (typeof key !== 'string' || typeof label !== 'string' || typeof img !== 'string') {
+      throw new Error('DictionaryEntry constructor requires string arguments for key, label, img');
+    }
+    this.key = key;
+    this.label = label;
+    this.img = img;
+  }
+}
+
+/**
+ * Class to handle dictionary rendering and search
+ */
+class AuslanDictionary {
+  constructor(entries = {}, citations = {}) {
+    // Validate object types
+    if (typeof entries !== 'object' || typeof citations !== 'object') {
+      throw new Error('AuslanDictionary expects objects for entries and citations');
+    }
+    this.entries = entries;       // key: DictionaryEntry
+    this.citations = citations;   // key: string
+    this.resultsContainer = document.getElementById('results'); // DOM element for results
+    this.searchInput = document.getElementById('search');       // DOM element for search input
+  }
+
+  /**
+   * Render dictionary entries to the page
+   * @param {object} entriesMap - Map of entries to render
+   */
+  render(entriesMap) {
+    this.resultsContainer.innerHTML = ''; // clear previous results
+
+    const keys = Object.keys(entriesMap);
+    if (keys.length === 0) {
+      // If no results found, display message
+      const noResult = document.createElement('p');
+      noResult.textContent = 'No results';
+      this.resultsContainer.appendChild(noResult);
+      return;
+    }
+
+    // Loop through entries and create cards
+    keys.forEach(key => {
+      const entry = entriesMap[key];
+
+      // Card container
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      // Image element
+      const img = document.createElement('img');
+      img.src = entry.img;
+      img.alt = entry.label;
+
+      // Label element
+      const labelDiv = document.createElement('div');
+      labelDiv.textContent = entry.label;
+      labelDiv.style.fontWeight = 'bold';
+
+      // Citation element
+      const citeDiv = document.createElement('div');
+      citeDiv.className = 'cite';
+      const basename = entry.img.split('/').pop();
+      citeDiv.textContent = this.citations[basename] || 'Image source: add citation in imagesCitations';
+
+      // Append elements to card
+      card.appendChild(img);
+      card.appendChild(labelDiv);
+      card.appendChild(citeDiv);
+
+      // Append card to container
+      this.resultsContainer.appendChild(card);
+    });
+  }
+
+  /**
+   * Filter dictionary entries based on search query
+   * @param {string} query
+   */
+  filter(query) {
+    const q = query.trim().toLowerCase();
+    if (!q) {
+      this.render(this.entries); // If query empty, show all
+      return;
+    }
+
+    const filtered = {};
+    Object.entries(this.entries).forEach(([key, entry]) => {
+      // Include entry if key or label contains query
+      if (key.includes(q) || entry.label.toLowerCase().includes(q)) {
+        filtered[key] = entry;
+      }
+    });
+    this.render(filtered);
+  }
+
+  /**
+   * Initialize search event listener
+   */
+  initializeSearch() {
+    this.searchInput.addEventListener('input', e => {
+      this.filter(e.target.value);
+    });
+  }
+}
+
+// Image citations object
+const imagesCitations = {
+  'A.png': 'Image source: [your citation here].',
+  'hello.png': 'Image source: Auslan Signbank (replace with exact citation).'
+};
+
+// Dictionary entries object
+const dictEntries = {
+  'a': new DictionaryEntry('a','A (fingerspell A)','assets/images/sign_a.png'),
+  'b': new DictionaryEntry('b','B (fingerspell B)','assets/images/sign_b.png'),
+  'c': new DictionaryEntry('c','C (fingerspell C)','assets/images/sign_c.png'),
+  'd': new DictionaryEntry('d','D (fingerspell D)','assets/images/sign_d.png'),
+  'e': new DictionaryEntry('e','E (fingerspell E)','assets/images/sign_e.png'),
+  'f': new DictionaryEntry('f','F (fingerspell F)','assets/images/sign_f.png'),
+  'g': new DictionaryEntry('g','G (fingerspell G)','assets/images/sign_g.png'),
+  'h': new DictionaryEntry('h','H (fingerspell H)','assets/images/sign_h.png'),
+  'i': new DictionaryEntry('i','I (fingerspell I)','assets/images/sign_i.png'),
+  'j': new DictionaryEntry('j','J (fingerspell J)','assets/images/sign_j.png'),
+  'k': new DictionaryEntry('k','K (fingerspell K)','assets/images/sign_k.png'),
+  'l': new DictionaryEntry('l','L (fingerspell L)','assets/images/sign_l.png'),
+  'm': new DictionaryEntry('m','M (fingerspell M)','assets/images/sign_m.png'),
+  'o': new DictionaryEntry('o','O (fingerspell O)','assets/images/sign_o.png'),
+  'p': new DictionaryEntry('p','P (fingerspell P)','assets/images/sign_p.png'),
+  'r': new DictionaryEntry('r','R (fingerspell R)','assets/images/sign_r.png'),
+  's': new DictionaryEntry('s','S (fingerspell S)','assets/images/sign_s.png'),
+  't': new DictionaryEntry('t','T (fingerspell T)','assets/images/sign_t.png'),
+  'u': new DictionaryEntry('u','U (fingerspell U)','assets/images/sign_u.png'),
+  'v': new DictionaryEntry('v','V (fingerspell V)','assets/images/sign_v.png'),
+  'x': new DictionaryEntry('x','X (fingerspell X)','assets/images/sign_x.png'),
+  'y': new DictionaryEntry('y','Y (fingerspell Y)','assets/images/sign_y.png'),
+  'z': new DictionaryEntry('z','Z (fingerspell Z)','assets/images/sign_z.png'),
+  '1': new DictionaryEntry('1','1','assets/images/sign_1.png'),
+  '2': new DictionaryEntry('2','2','assets/images/sign_2.png'),
+  '3': new DictionaryEntry('3','3','assets/images/sign_3.png'),
+  '4': new DictionaryEntry('4','4','assets/images/sign_4.png'),
+  '5': new DictionaryEntry('5','5','assets/images/sign_5.png'),
+  '6': new DictionaryEntry('6','6','assets/images/sign_6.png'),
+  '7': new DictionaryEntry('7','7','assets/images/sign_7.png'),
+  '8': new DictionaryEntry('8','8','assets/images/sign_8.png'),
+  '9': new DictionaryEntry('9','9','assets/images/sign_9.png'),
+  '10': new DictionaryEntry('10','10','assets/images/sign_10.png'),
+  'red': new DictionaryEntry('red','Red','assets/images/sign_red.png'),
+  'purple': new DictionaryEntry('purple','Purple','assets/images/sign_purple.png'),
+  'blue': new DictionaryEntry('blue','Blue','assets/images/sign_blue.png'),
+  'green': new DictionaryEntry('green','Green','assets/images/sign_green.png'),
+  'yellow': new DictionaryEntry('yellow','Yellow','assets/images/sign_yellow.png'),
+  'black': new DictionaryEntry('black','Black','assets/images/sign_black.png'),
+  'white': new DictionaryEntry('white','White','assets/images/sign_white.png'),
+  'hello': new DictionaryEntry('hello','Hello','assets/images/sign_hello.png'),
+  'thankyou': new DictionaryEntry('thankyou','Thank you','assets/images/sign_thankyou.png'),
+  'yes': new DictionaryEntry('yes','Yes','assets/images/sign_yes.png'),
+  'no': new DictionaryEntry('no','No','assets/images/sign_no.png')
+};
+
+// Initialize dictionary object
+const auslanDictionary = new AuslanDictionary(dictEntries, imagesCitations);
+
+// Render all entries on page load
+auslanDictionary.render(dictEntries);
+
+// Setup search functionality
+auslanDictionary.initializeSearch();
+
+</script>
+<script src="assets/js/theme.js"></script>
+</body>
+</html>

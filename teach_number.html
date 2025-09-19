@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>*:･ﾟLearning Numbers ✧*:･ﾟ - SignLink</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <style>
+    .lesson-container {
+      max-width: 900px;
+      margin: 30px auto;
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 20px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .card img {
+      max-width: 100px;
+      margin-bottom: 10px;
+    }
+    .dark-mode .card {
+      background: #2a2a2a;
+    }
+  </style>
+</head>
+<body>
+  <h1>Learn Numbers (1–10)</h1>
+  <div class="lesson-container">
+    <div class="grid" id="numberGrid"></div>
+  </div>
+
+  <p style="font-size: 14px; color: gray;">
+    Image credits: Deafchildrenaustralia.org.au. (2023). Available at: https://www.deafchildrenaustralia.org.au/wp-content/uploads/2023/10/DCA_PPH_Numbers_A3poster_2023_PRINT-1-pdf.jpg [Accessed 19 Sep. 2025].
+  </p>
+
+  <footer>
+    <p>&copy; 2025 Developed by Urena Verma</p>
+  </footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script>
+    // --- Global variables ---
+    const numberGrid = document.getElementById('numberGrid');
+
+    /**
+     * Class representing a number with its Auslan sign
+     */
+    class NumberCard {
+      /**
+       * @param {number} value - number value
+       * @param {string} imgSrc - path to sign image
+       */
+      constructor(value, imgSrc) {
+        // Data validation
+        if (typeof value !== 'number' || value < 1 || value > 10) {
+          throw new Error('Invalid number value: must be between 1 and 10');
+        }
+        if (!imgSrc || typeof imgSrc !== 'string') throw new Error('Invalid image source');
+
+        this.value = value;
+        this.imgSrc = imgSrc;
+      }
+
+      /**
+       * Render DOM element for this number
+       * @returns {HTMLElement} card element
+       */
+      render() {
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const img = document.createElement('img');
+        img.src = this.imgSrc;
+        img.alt = `Sign for ${this.value}`;
+
+        const caption = document.createElement('h3');
+        caption.textContent = this.value;
+
+        card.appendChild(img);
+        card.appendChild(caption);
+
+        return card;
+      }
+    }
+
+    /**
+     * Generate array of NumberCard objects for numbers 1–10
+     * @returns {NumberCard[]}
+     */
+    function generateNumberCards() {
+      const numbersArray = [];
+      for (let i = 1; i <= 10; i++) {
+        numbersArray.push(new NumberCard(i, `assets/images/sign_${i}.png`));
+      }
+      return numbersArray;
+    }
+
+    /**
+     * Render all number cards to the grid
+     */
+    function renderNumberLesson() {
+      const cards = generateNumberCards();
+      cards.forEach(card => numberGrid.appendChild(card.render()));
+    }
+
+    // --- Execute on page load ---
+    renderNumberLesson();
+  </script>
+</body>
+</html>

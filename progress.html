@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>*:･ﾟProgress ✧*:･ﾟ - SignLink</title>
+<style>
+  body { font-family: Cambria, serif; background:#97a0c7; color:#333; margin:0; padding:18px; }
+  h1 { text-align:center; }
+  .box { max-width:600px; margin:18px auto; background:#fff; padding:12px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+  .stat { margin:8px 0; font-size:1.05em; }
+
+  /* dark mode overrides */
+  body.dark-mode {
+      background-color: #1a1a1a !important;
+      color: #eee !important;
+  }
+
+  body.dark-mode .box {
+      background-color: #2a2a2a !important;
+      color: #eee !important;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3) !important;
+  }
+
+  body.dark-mode a {
+      color: #f5f5f5 !important;
+  }
+</style>
+</head>
+<body>
+<h1>Your Progress</h1>
+<div class="box" id="progressBox">Loading...</div>
+<p style="text-align:center;"><a href="dashboard.html">← Back to Dashboard</a></p>
+
+<script>
+/**
+ * Class representing a user's progress
+ */
+class UserProgress {
+  /**
+   * @param {string} username - currently logged-in username
+   */
+  constructor(username) {
+    if (typeof username !== 'string' || !username.trim()) {
+      throw new Error('Invalid username');
+    }
+
+    this.username = username;
+    // get existing progress or create default
+    const storedProgress = JSON.parse(localStorage.getItem('progress') || '{}');
+    this.progressData = storedProgress[this.username] || { modulesCompleted: 0, score: 0, completed: {} };
+  }
+
+  /**
+   * Save progress to localStorage
+   */
+  save() {
+    const storedProgress = JSON.parse(localStorage.getItem('progress') || '{}');
+    storedProgress[this.username] = this.progressData;
+    localStorage.setItem('progress', JSON.stringify(storedProgress));
+  }
+
+  /**
+   * Render progress GUI
+   */
+  render() {
+    const container = document.getElementById('progressBox');
+    if (!this.username) {
+      container.innerHTML = '<p>Please login to view progress.</p>';
+      return;
+    }
+
+    const completedItems = Object.keys(this.progressData.completed);
+    container.innerHTML = `
+      <div class="stat"><strong>User:</strong> ${this.username}</div>
+      <div class="stat"><strong>Modules completed:</strong> ${completedItems.length}</div>
+      <div class="stat"><strong>Score:</strong> ${this.progressData.score}</div>
+      <div class="stat"><strong>Completed items:</strong> ${completedItems.length ? completedItems.join(', ') : '—'}</div>
+    `;
+  }
+
+  /**
+   * Update progress when a module/quiz is completed
+   * @param {string} itemName - name of the completed module
+   * @param {number} scoreIncrement - points to add (default 1)
+   */
+  update(itemName, scoreIncrement = 1) {
+    // data validation
+    if (!itemName || typeof itemName !== 'string') return;
+    if (typeof scoreIncrement !== 'number' || scoreIncrement < 0) return;
+
+    // prevent double counting
+    if (!this.progressData.completed[itemName]) {
+      this.progressData.completed[itemName] = true;
+      this.progressData.modulesCompleted++;
+      this.progressData.score += scoreIncrement;
+      this.save();
+      this.render();
+    }
+  }
+}
+
+// --- Global variables ---
+// get logged in username from localStorage
+const loggedInUser = localStorage.getItem('loggedInUser');
+
+// create user progress instance if logged in
+let currentUserProgress = null;
+if (loggedInUser) {
+  currentUserProgress = new UserProgress(loggedInUser);
+}
+
+// render progress on page load
+currentUserProgress?.render();
+
+// expose update function to other pages
+window.updateProgress = (itemName, scoreIncrement) => {
+  if (currentUserProgress) currentUserProgress.update(itemName, scoreIncrement);
+};
+</script>
+
+<script src="assets/js/theme.js"></script>
+</body>
+</html>

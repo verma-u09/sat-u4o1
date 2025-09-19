@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>*:･ﾟMemory Game ✧*:･ﾟ - SignLink</title>
+  <link rel="stylesheet" href="assets/css/theme.css">
+  <style>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, 100px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    .card {
+      width: 100px;
+      height: 100px;
+      background: #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 20px;
+      border-radius: 5px;
+    }
+    .card img {
+      max-width: 80%;
+      display: none;
+    }
+    .flipped img {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Memory Game</h1>
+  <p>Match the Auslan signs with their letters, numbers, and colours.</p>
+  <div class="grid" id="gameBoard"></div>
+  <p id="status"></p>
+  <p style="font-size: 14px; color: gray;">
+      Image credits: 1. Vic.edu.au. (2024). Available at: https://melroseps.vic.edu.au/wp-content/uploads/2024/03/1-scaled.jpg. 
+      2. Deafchildrenaustralia.org.au. (2023). Available at: https://www.deafchildrenaustralia.org.au/wp-content/uploads/2023/10/DCA_PPH_Numbers_A3poster_2023_PRINT-1-pdf.jpg [Accessed 19 Sep. 2025]. 
+      3. Signplanet.net. (2025). Available at: https://signplanet.net/resource/101/thumbnail [Accessed 19 Sep. 2025].
+  </p>
+  <footer>&copy; 2025 Developed by Urena Verma</footer>
+
+  <script src="assets/js/theme.js"></script>
+  <script>
+    /**
+     * Class representing a single memory card
+     */
+    class MemoryCard {
+      constructor(name, imageSrc) {
+        // Validate parameters
+        if (typeof name !== 'string') throw new Error('name must be a string');
+        if (typeof imageSrc !== 'string') throw new Error('imageSrc must be a string');
+
+        this.name = name;         // Name/identifier for matching
+        this.imageSrc = imageSrc; // Path to the image file
+      }
+    }
+
+    /**
+     * Class representing the memory game
+     */
+    class MemoryGame {
+      constructor(cardsArray, boardElement, statusElement) {
+        // Validate inputs
+        if (!Array.isArray(cardsArray)) throw new Error('cardsArray must be an array');
+        if (!(boardElement instanceof HTMLElement)) throw new Error('boardElement must be a DOM element');
+        if (!(statusElement instanceof HTMLElement)) throw new Error('statusElement must be a DOM element');
+
+        this.cardsArray = [...cardsArray, ...cardsArray]; // duplicate for matching
+        this.boardElement = boardElement;
+        this.statusElement = statusElement;
+        this.firstCard = null;
+        this.lockBoard = false;
+        this.matchesFound = 0;
+
+        // Shuffle cards using Fisher-Yates
+        this.shuffleCards();
+        this.renderBoard();
+      }
+
+      /**
+       * Shuffle the cards array in place
+       */
+      shuffleCards() {
+        for (let i = this.cardsArray.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [this.cardsArray[i], this.cardsArray[j]] = [this.cardsArray[j], this.cardsArray[i]];
+        }
+      }
+
+      /**
+       * Render the game board dynamically
+       */
+      renderBoard() {
+        this.boardElement.innerHTML = ''; // clear any existing cards
+
+        // Loop through all cards to create DOM elements
+        this.cardsArray.forEach(card => {
+          const cardDiv = document.createElement('div');
+          cardDiv.classList.add('card');
+          cardDiv.dataset.name = card.name;
+
+          const img = document.createElement('img');
+          img.src = card.imageSrc;
+          img.alt = card.name;
+
+          cardDiv.appendChild(img);
+
+          // Add click event listener
+          cardDiv.addEventListener('click', () => this.flipCard(cardDiv));
+
+          this.boardElement.appendChild(cardDiv);
+        });
+      }
+
+      /**
+       * Flip a card and handle match logic
+       * @param {HTMLElement} cardElement 
+       */
+      flipCard(cardElement) {
+        // Ensure valid card element
+        if (!(cardElement instanceof HTMLElement)) return;
+        if (this.lockBoard || cardElement.classList.contains('flipped')) return;
+
+        cardElement.classList.add('flipped');
+
+        // First card selected
+        if (!this.firstCard) {
+          this.firstCard = cardElement;
+          return;
+        }
+
+        // Second card selected: check for match
+        if (this.firstCard.dataset.name === cardElement.dataset.name) {
+          this.matchesFound++;
+          this.firstCard = null;
+
+          // Check if all matches are found
+          if (this.matchesFound === this.cardsArray.length / 2) {
+            this.statusElement.textContent = "🎉 You matched everything!";
+          }
+        } else {
+          // Cards do not match: lock board and flip back after delay
+          this.lockBoard = true;
+          setTimeout(() => {
+            cardElement.classList.remove('flipped');
+            this.firstCard.classList.remove('flipped');
+            this.firstCard = null;
+            this.lockBoard = false;
+          }, 800);
+        }
+      }
+    }
+
+    // --- Prepare card data ---
+    const letters = Array.from({ length: 26 }, (_, i) => new MemoryCard(String.fromCharCode(65 + i), `assets/images/sign_${String.fromCharCode(65 + i).toLowerCase()}.png`));
+    const numbers = Array.from({ length: 10 }, (_, i) => new MemoryCard((i + 1).toString(), `assets/images/sign_${i + 1}.png`));
+    const colours = [
+      new MemoryCard("Red", "assets/images/sign_red.png"),
+      new MemoryCard("Orange", "assets/images/sign_orange.png"),
+      new MemoryCard("Yellow", "assets/images/sign_yellow.png"),
+      new MemoryCard("Green", "assets/images/sign_green.png"),
+      new MemoryCard("Blue", "assets/images/sign_blue.png"),
+      new MemoryCard("Purple", "assets/images/sign_purple.png"),
+      new MemoryCard("Black", "assets/images/sign_black.png"),
+      new MemoryCard("White", "assets/images/sign_white.png")
+    ];
+
+    const allCards = [...letters, ...numbers, ...colours];
+
+    // DOM references
+    const boardElement = document.getElementById('gameBoard');
+    const statusElement = document.getElementById('status');
+
+    // Initialize game
+    const memoryGame = new MemoryGame(allCards, boardElement, statusElement);
+  </script>
+</body>
+</html>
